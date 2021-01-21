@@ -27,3 +27,10 @@ var setMode = function(id) {
         $(id).off('mousedown', componentDragListener);
     }
 }
+
+var switchMode = function () {
+    if ($(this).attr('data-mode') == 'move') resizeMode();
+    else moveMode();
+
+    components.forEach(function (entry) { setMode('#' + entry); });
+}

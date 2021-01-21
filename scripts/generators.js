@@ -79,3 +79,10 @@ var genComb = function () {
 
     return $(card);
 }
+
+var addComb = function (e) {
+    var newCombined = genComb();
+    $(newCombined).addClass('combined-element');
+
+    addComponent(newCombined, e.clientX, e.clientY);
+}
