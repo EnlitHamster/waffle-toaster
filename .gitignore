@@ -1,4 +1,4 @@
 .directory
 node_modules/
 pictures/*
-!pictures/
+!pictures/.keep_me
