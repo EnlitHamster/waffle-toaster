@@ -28,3 +28,10 @@ var saveEditComb = function () {
     $(cardId).find('.card-title').text(cardTitle);
     $(cardId).find('.card-text').text(cardText);
 }
+
+var resizeCanvas = function () {
+    $('#canvas').css({
+        'min-height': ($(window).height() - $('#navbar').outerHeight()) + 'px',
+        'max-height': ($(window).height() - $('#navbar').outerHeight()) + 'px'                    
+    });
+}

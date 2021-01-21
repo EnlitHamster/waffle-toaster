@@ -29,7 +29,7 @@ var setMode = function(id) {
 }
 
 var switchMode = function () {
-    if ($(this).attr('data-mode') == 'move') resizeMode();
+    if ($('#move-resize').attr('data-mode') == 'move') resizeMode();
     else moveMode();
 
     components.forEach(function (entry) { setMode('#' + entry); });

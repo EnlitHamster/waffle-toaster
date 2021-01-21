@@ -16,7 +16,7 @@ var addImageToGallery = function ($container, $lgContainer, f) {
         'data-responsive': file,
         'data-src': file
     });
-    $(li).append($(a))
+    $(li).append($(a));
 
     $(a).attr({
         'href': '#',
@@ -46,20 +46,21 @@ var uploadFile = function () {
     if (files.length > 0) {
         var i;
         for (i = 0; i < files.length; i++) {
-            var file = files[i].path;
+            var file = files[i].path.replaceAll('\\', '/');
             var fName = file.substring(file.lastIndexOf('/'));
             var newFile = './pictures/' + fName;
-            if (files[i].type.match(/image.*/) && !fs.existsSync(newFile)) fs.copyFile(file, newFile, (err) => {
+            if (files[i].type.match(/image.*/) && fs.existsSync(file) && !fs.existsSync(newFile)) fs.copyFile(file, newFile, (err) => {
                 if (err) throw err;
                 console.log('File copied');
-                addImageToGallery($('#uploaded-files-gallery-container'), $('#lg-gallery-uploaded'), fName)
+                addImageToGallery($('#uploaded-files-gallery-container'), $('#lg-gallery-uploaded'), fName);
             }); else alert('File is not an image or a file with this name already exists.');
         }
     }
 }
 
 var updateChooser = function () {
-    var files = $(this).prop('files');
+    var files = $('input[name=upload-new-file-chooser]').prop('files');
+    alert(files);
     if (files.length > 0) {
         var strFiles = files[0].path;
         var i;
@@ -115,7 +116,7 @@ var imgEditClear = function () {
  * =============================================== */
 
 var confirmDelete = function () {
-    var cardId = $(this).attr('data-id');
+    var cardId = $('#confirm-delete').attr('data-id');
 
     $('#' + cardId).remove();
     components = components.filter(id => id != cardId);

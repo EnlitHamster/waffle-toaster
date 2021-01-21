@@ -49,11 +49,5 @@ $(function () {
     $container.append($(lgContainer));
 
     // Fixing canvas viewport height
-    $(window).on('resize', function () {
-        alert($(window).height() + ' ' + $(document).height() + ' ' + $('#navbar').height());
-        $('#main-wrapper').css({
-            'min-height': ($('body').height() - $('#navbar').height()) + 'px',
-            'max-height': ($('body').height() - $('#navbar').height()) + 'px'                    
-        });
-    })
+    $(window).on('resize', () => resizeCanvas());
 });
