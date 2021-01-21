@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<!--
+
+    TODO:
+
+    - for canvas scrolling, let's set a canvas size (potentially customizable)
+      and make the div that size. The canvas opens with the center centered.
+    - compact the cards in one.
+
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <title>Waffle Toaster</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+
+    <!-- required stylesheets -->
+    <link rel="stylesheet" href="./style/bootstrap.min.css" />
+    <link rel="stylesheet" href="./style/main.css" />
+    <link rel="stylesheet" href="./style/font-awesome.min.css" />
+    <link rel="stylesheet" href="./style/lightgallery.css" />
+    <link rel="stylesheet" href="./style/gallery.css" />
+
+    <!-- required scripts -->
+    <script>
+        let $ = require('jquery');
+        require('popper.js');
+        require('bootstrap');
+        require('lightgallery');
+        const fs = require('fs');
+    </script>
+    <script src="./scripts/math.js"></script>
+    <script src="./scripts/dragndrop.js"></script>
+    <script src="./scripts/rearrange.js"></script>
+    <script src="./scripts/generators.js"></script>
+    <script>
+        var lastImgId = 0;
+
+        var addImageToGallery = function ($container, $lgContainer, f) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            var img = document.createElement('img');
+            var file = './pictures/' + f;
+            var id = 'lg-gallery-img-' + lastImgId++;
+
+            $(li).addClass('col-xs-6 col-sm-4 col-md-2 col-lg-2');
+            $(li).attr({
+                'data-responsive': file,
+                'data-src': file
+            });
+            $(li).append($(a))
+
+            $(a).attr({
+                'href': '#',
+                'id': id
+            });
+            $(a).append($(img));
+            $(a).on('click', function (e) {
+                e.preventDefault();
+                var selected = $container.attr('data-selected-img');
+
+                $(a).css({ border: 'solid 2px #00a2cf' });
+                if (selected != 'none') $(selected).css({ border: 'none' });
+                $container.attr('data-selected-img', '#' + id);
+            });
+
+            $(img).addClass('img-responsive');
+            $(img).attr({
+                'src': file,
+                'id': id + "-src"
+            });
+
+            $lgContainer.append($(li));
+        }
+
+        var addComponent = function (comp, posX, posY) {
+            var id = $(comp).attr('id');
+            components.push(id);
+            $('#canvas').append($(comp));
+
+            $(comp).css({
+                position: 'absolute',
+                display: 'block'
+            });
+            setMode('#' + id);
+
+            drag({ x: posX, y: posY }, $(comp), $('#canvas'), HorizPosition.CENTER, VertPosition.CENTER);
+            startDrag($(comp), $('#canvas'), HorizPosition.CENTER, VertPosition.CENTER);
+        }
+
+        $(document).ready(function () {
+            // Sidebar collapse ability
+            $('#sidebar-collapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+
+            // Settings saving
+            $('#save-settings').on('click', function () {
+                var showGrid = $('input[name=show-grid]:checked').val();
+
+                // Grid options
+                if (showGrid == 'true') $('#canvas').addClass('grid-bg'); else $('#canvas').removeClass('grid-bg');
+            });
+
+            // Image editing delete button
+            $('#delete-edit-comb').on('click', function () {
+                var cardId = $('#edit-comb-form').attr('data-id');
+                var cardTitle = $('#' + cardId).find('.card-title').text();
+
+                $('#confirm-delete-target').text(cardTitle);
+                $('#confirm-delete').attr('data-id', cardId);
+            })
+
+            // Confirm delete button
+            $('#confirm-delete').on('click', function () {
+                var cardId = $(this).attr('data-id');
+
+                $('#' + cardId).remove();
+                components = components.filter(id => id != cardId);
+            });
+
+            // Rearrange/move mode switcher
+            $('#move-resize').on('click', function () {
+                if ($(this).attr('data-mode') == 'move') resizeMode();
+                else moveMode();
+
+                components.forEach(function (entry) { setMode('#' + entry); });
+            });
+
+            // Combined generator
+            $('#combined-generator').on('mousedown', function (e) {
+                var newCombined = genComb();
+                $(newCombined).addClass('combined-element');
+
+                addComponent(newCombined, e.clientX, e.clientY);
+            });
+
+            // On file upload
+            $('#upload-new-file').on('click', function () {
+                var files = $('input[name=upload-new-file-chooser]').prop('files');
+                if (files.length > 0) {
+                    var i;
+                    for (i = 0; i < files.length; i++) {
+                        var file = files[i].path;
+                        var fName = file.substring(file.lastIndexOf('/'));
+                        var newFile = './pictures/' + fName;
+                        if (files[i].type.match(/image.*/) && !fs.existsSync(newFile)) fs.copyFile(file, newFile, (err) => {
+                            if (err) throw err;
+                            console.log('File copied');
+                            addImageToGallery($('#uploaded-files-gallery-container'), $('#lg-gallery-uploaded'), fName)
+                        }); else alert('File is not an image or a file with this name already exists.');
+                    }
+                }
+            });
+
+            // Save card
+            $('#save-edit-comb').on('click', function () {
+                var cardId = '#' + $('#edit-comb-form').attr('data-id');
+                var cardTitle = $('input[name=edit-comb-card-title]').val();
+                var cardText = $('textarea#edit-comb-card-text').val();
+                var selectedImg = $('#uploaded-files-gallery-container').attr('data-selected-img');
+                var img = $('#edit-comb-display').attr('data-img');
+
+                var $cardImg = $(cardId).find('.card-img-top');
+                if (img != undefined && img != 'none') {
+                    $cardImg.removeClass('disabled');
+                    $cardImg.attr('src', img);
+                } else $cardImg.addClass('disabled');
+
+                $(cardId).find('.card-title').text(cardTitle);
+                $(cardId).find('.card-text').text(cardText);
+            });
+
+            // Selecting image for Card
+            $('#select-uploaded-file').on('click', function () {
+                var selectedImg = $('#uploaded-files-gallery-container').attr('data-selected-img');
+                var img = $(selectedImg + '-src').attr('src');
+
+                if (img != undefined && img != 'none') {
+                    $('#edit-comb-display').removeClass('disabled');
+                    $('#edit-comb-display').css({ 'background-image': 'url(\'' + img + '\')' });
+                    $('#edit-comb-display').attr('data-img', img);
+                } else {
+                    $('#edit-comb-display').addClass('disabled');
+                    $('#edit-comb-display').attr('data-img', 'none');
+                }
+            });
+
+            $('#clear-img-comb').on('click', function () {
+                $('#edit-comb-display').addClass('disabled');
+                $('#edit-comb-display').attr('data-img', 'none');
+            });
+
+            // Updating file chooser with file name
+            $('input[name=upload-new-file-chooser]').on('change', function (e) {
+                var files = $(this).prop('files');
+                if (files.length > 0) {
+                    var strFiles = files[0].path;
+                    var i;
+                    for (i = 1; i < files.length; i++) strFiles += files[i].path;
+                    $('label[for=\'upload-new-file-chooser\']').text(strFiles);
+                }
+            });
+
+            resizeMode();
+
+            // Populating img gallery
+            var files = fs.readdirSync('./pictures/');
+
+            var $container = $('#uploaded-files-gallery-container');
+            $container.attr('data-selected-img', 'none');
+
+            var lgContainer = document.createElement('ul');
+            $(lgContainer).addClass('list-unstyled row');
+            $(lgContainer).attr('id', 'lg-gallery-uploaded');
+
+            files.forEach(f => addImageToGallery($container, $(lgContainer), f));
+
+            $container.append($(lgContainer));
+
+            // Fixing canvas viewport height
+            $(window).on('resize', function () {
+                alert($(window).height() + ' ' + $(document).height() + ' ' + $('#navbar').height());
+                $('#main-wrapper').css({
+                    'min-height': ($('body').height() - $('#navbar').height()) + 'px',
+                    'max-height': ($('body').height() - $('#navbar').height()) + 'px'                    
+                });
+            })
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- BEGIN HEADER -->
+
+    <nav id="navbar" class="navbar navbar-expand navbar-light bg-light">
+        <div id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="modal" data-target="#settings-modal">Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="move-resize" href="#" data-mode="resize">Rearrange</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- END HEADER -->
+
+    <div id="main-wrapper" class="wrapper">
+
+        <!-- BEGIN SIDEBAR -->
+
+        <div id="sidebar" class="bg-light">
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="#">Board</a>
+                </li>
+                <li>
+                    <a href="#">Diagram</a>
+                </li>
+                <li>
+                    <a href="#" id="combined-generator">Card</a>
+                </li>
+
+                <!-- Cards accordion
+                <li>
+                    <a href="#cards-components" data-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle">Cards</a>
+                    <ul class="collapse list-unstyled" id="cards-components">
+                        <li>
+                            <a id="image-generator" href="#">Image</a>
+                        </li>
+                        <li>
+                            <a id="text-generator" href="#">Text</a>
+                        </li>
+                        <li>
+                            <a id="combined-generator" href="#">Combined</a>
+                        </li>
+                    </ul>
+                </li> -->
+            </ul>
+        </div>
+
+        <!-- END SIDEBAR -->
+
+        <!-- BEGIN CANVAS -->
+
+        <div id="canvas" class="scrollbar"></div>
+
+        <!-- END CANVAS -->
+
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settings-modal" tabindex="-1" role="dialog" aria-labelledby="settings-modal-title"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settings-modal-title">Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body scrollbar">
+                    <form id="settings-form" class="form-horizontal">
+                        <div class="form-group row">
+                            <label class="col-4">Show Grid</label>
+                            <div class="col-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input name="show-grid" id="show-grid-true" type="radio"
+                                        class="custom-control-input" value="true">
+                                    <label for="show-grid-true" class="custom-control-label">yes</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input name="show-grid" id="show-grid-false" type="radio"
+                                        class="custom-control-input" value="false">
+                                    <label for="show-grid-false" class="custom-control-label">no</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="save-settings" class="btn btn-primary" data-dismiss="modal">Save
+                        changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Combined edit Modal -->
+    <div class="modal fade" id="edit-comb-modal" tabindex="-1" role="dialog" aria-labelledby="edit-comb-modal-title"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="edit-comb-modal-title">Edit Image card</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body scrollbar">
+                    <form id="edit-comb-form" class="form-horizontal">
+                        <div class="form-group row">
+                            <label for="edit-comb-card-title" class="col-4 col-form-label">Card title</label>
+                            <div class="col-8">
+                                <input id="edit-comb-card-title" name="edit-comb-card-title" placeholder="Card Title"
+                                    type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="edit-comb-card-text" class="col-4 col-form-label">Text Area</label>
+                            <div class="col-8">
+                                <textarea id="edit-comb-card-text" name="edit-comb-card-text" cols="40" rows="5"
+                                    class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <button id="open-select-img-comb" type="button" style="margin: auto;"
+                                class="btn btn-secondary text-center col-4" data-toggle="modal"
+                                data-target="#uploaded-files-modal" data-dismiss="modal">Select image</button>
+                            <button id="clear-img-comb" type="button" style="margin: auto;"
+                                class="btn btn-danger text-center col-4">Clear image</button>
+                        </div>
+                        <div class="form-group row">
+                            <div id="edit-comb-display"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="delete-edit-comb" class="btn btn-danger" data-toggle="modal"
+                        data-target="#confirm-delete-modal" data-dismiss="modal">Remove</button>
+                    <button type="button" id="save-edit-comb" class="btn btn-primary" data-dismiss="modal">Save
+                        changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm delete Modal -->
+    <div class="modal fade" id="confirm-delete-modal" tabindex="-1" role="dialog"
+        aria-labelledby="confirm-delete-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirm-delete-modal-title">Confirm delete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body scrollbar">
+                    <p>Are you sure you want to delete <strong id="confirm-delete-target"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="confirm-delete" class="btn btn-danger"
+                        data-dismiss="modal">Confirm</button>
+                    <button type="button" id="cancel-delete" class="btn btn-secondary"
+                        data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Already uploaded files Modal -->
+    <div class="modal fade" id="uploaded-files-modal" tabindex="-1" role="dialog"
+        aria-labelledby="uploaded-files-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document"
+            style="max-width:80%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploaded-files-modal-title">Uploaded files</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body scrollbar">
+                    <form id="uploaded-files-form" class="form-horizontal">
+                        <div class="form-group row container" style="margin:auto!important;">
+                            <div id="uploaded-files-gallery-container"></div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="custom-file col" style="margin:0 .75em;">
+                                <input type="file" name="upload-new-file-chooser" class="custom-file-input"
+                                    id="upload-new-file-chooser">
+                                <label for="upload-new-file-chooser" class="custom-file-label">Choose file</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit-comb-modal"
+                        data-dismiss="modal">Back</button>
+                    <button type="button" id="upload-new-file" class="btn btn-primary">Upload</button>
+                    <button type="button" id="select-uploaded-file" class="btn btn-primary" data-toggle="modal"
+                        data-target="#edit-comb-modal" data-dismiss="modal">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
