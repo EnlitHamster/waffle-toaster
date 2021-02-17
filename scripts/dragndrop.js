@@ -12,12 +12,14 @@ var HorizPosition = {
 
 /* Inspired by https://codepen.io/tessat/pen/aAEDd */
 
-var startDrag = function($dragging, $anchor, hPos, vPos) {
+var startDrag = function($dragging, $anchor, hPos, vPos, minmax) {
+    console.log(minmax);
+
     $dragging.addClass('dragging');
 
     $anchor.on('mousemove', function(e) {
         e.preventDefault();
-        drag({x: e.clientX, y: e.clientY}, $dragging, $anchor, hPos, vPos);
+        drag({x: e.clientX, y: e.clientY}, $dragging, $anchor, hPos, vPos, minmax);
     });
 
     $anchor.on('mouseup', function() {
@@ -30,7 +32,7 @@ var stopDrag = function($dragging, $anchor) {
     $anchor.off('mousemove mouseup');
 }
 
-var drag = function(pos, $dragging, $anchor, hPos, vPos) {
+var drag = function(pos, $dragging, $anchor, hPos, vPos, minmax) {
     var offset = $anchor.offset();
 
     // Finding positioning relative to anchor of the cursor normalized
@@ -38,17 +40,20 @@ var drag = function(pos, $dragging, $anchor, hPos, vPos) {
     var xPos = pos.x - offset.left - hPos * $dragging.width();
     var yPos = pos.y - offset.top - vPos * $dragging.height();
 
-    var xMax = $anchor.width() - $dragging.width();
-    var yMax = $anchor.height() - $dragging.height();
+    var xMax = $anchor.width() - $dragging.outerWidth();
+    var yMax = $anchor.height() - $dragging.outerHeight();
+
+    console.log('X: ' + xMax + ' < ' + xPos + ' < 0');
+    console.log('Y: ' + yMax + ' < ' + yPos + ' < 0');
 
     // Setting the new positions
     $dragging.css({
-        left: min(xMax, max(xPos, 0)) + 'px',
-        top: min(yMax, max(yPos, 0)) + 'px',
+        left: minmax(0, xPos, xMax) + 'px',
+        top: minmax(0, yPos, yMax) + 'px',
     });
 
-    console.log('=== Dragging Log ===');
-    console.log(offset.left + ' ' + $anchor.width() + ' - ' + xPos + ' ' + xMax);
-    console.log(offset.top + ' ' + $anchor.height() + ' - ' + yPos + ' ' + yMax);
-    console.log(($dragging.offset().left - offset.left) + ' ' + ($dragging.offset().top - offset.top));
+    // console.log('=== Dragging Log ===');
+    // console.log(offset.left + ' ' + $anchor.width() + ' - ' + xPos + ' ' + xMax);
+    // console.log(offset.top + ' ' + $anchor.height() + ' - ' + yPos + ' ' + yMax);
+    // console.log(($dragging.offset().left - offset.left) + ' ' + ($dragging.offset().top - offset.top));
 }

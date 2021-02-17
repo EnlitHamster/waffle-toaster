@@ -18,6 +18,9 @@ var nextId = function () {
     return lastId;
 }
 
+// TODO: See this https://medium.com/the-z/making-a-resizable-div-in-js-is-not-easy-as-you-think-bda19a1bc53d
+//       for rework of canvas elements
+
 var genComb = function () {
     var card = document.createElement('div');
     var cardBody = document.createElement('div');
@@ -26,18 +29,26 @@ var genComb = function () {
     var cardText = document.createElement('p');
     var cardEdit = document.createElement('a');
 
+    //var resizers = document.createElement('div');
+    //var tlRsz = document.createElement('div');
+    //var trRsz = document.createElement('div');
+    //var blRsz = document.createElement('div');
+    //var brRsz = document.createElement('div');
+
     // Setting card style, id & components
     $(card).addClass('card scrollbar');
     $(card).attr('id', 'img-' + nextId());
     $(card).append(cardImg)
-        .append($(cardBody));
+        .append(cardBody);
+    //    .append(resizers);
     $(card).css({
         'overflow-y': 'overlay',
         'overflow-x': 'hidden',
         'min-width': '160px',
         'min-height': '160px',
         width: '160px',
-        height: '160px'
+        height: '160px',
+        'z-index': 10,
     });
 
     // Setting card image style & text
@@ -76,6 +87,18 @@ var genComb = function () {
             $('#edit-comb-display').css({ 'background-image': 'url(\'' + img + '\')' });
         } else $('#edit-comb-display').addClass('disabled');
     });
+
+    // Setting up the resizers
+    //$(resizers).append(tlRsz)
+    //    .append(trRsz)
+    //    .append(blRsz)
+    //    .append(brRsz);
+    //$(resizers).addClass('resizers');
+
+    //$(tlRsz).addClass('resizer top-left');
+    //$(trRsz).addClass('resizer top-right');
+    //$(blRsz).addClass('resizer bottom-left');
+    //$(brRsz).addClass('resizer bottom-right');
 
     return $(card);
 }

@@ -1,8 +1,11 @@
 var componentDragListener = function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+
     var offset = $(this).offset();
     var dx = (e.clientX - offset.left) / $(this).width();
     var dy = (e.clientY - offset.top) / $(this).height();
-    startDrag($(this), $('#canvas'), dx, dy);
+    startDrag($(this), $('#canvas'), dx, dy, (p, a, q) => min(q, max(a, p)));
 }
 
 var moveMode = function() {

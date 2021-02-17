@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="./style/font-awesome.min.css" />
     <link rel="stylesheet" href="./style/lightgallery.css" />
     <link rel="stylesheet" href="./style/gallery.css" />
+    <!--<link rel="stylesheet" href="./style/resizer.css" />-->
 
     <!-- required scripts -->
     <script>
@@ -29,6 +30,7 @@
         require('lightgallery');
         const fs = require('fs');
     </script>
+    <!--<script src="./scripts/resizer.js"></script>-->
     <script src="./scripts/math.js"></script>
     <script src="./scripts/dragndrop.js"></script>
     <script src="./scripts/canvas.js"></script>
@@ -96,7 +98,9 @@
 
         <!-- BEGIN CANVAS -->
 
-        <div id="canvas" class="scrollbar"></div>
+        <div id="canvas-wrapper" class="bg-light">
+            <div id="canvas"></div>
+        </div>
 
         <!-- END CANVAS -->
 
@@ -120,7 +124,7 @@
                             <div class="col-8">
                                 <div class="custom-control custom-radio custom-control-inline">
                                     <input name="show-grid" id="show-grid-true" type="radio"
-                                        class="custom-control-input" value="true">
+                                        class="custom-control-input" value="true" checked>
                                     <label for="show-grid-true" class="custom-control-label">yes</label>
                                 </div>
                                 <div class="custom-control custom-radio custom-control-inline">
@@ -128,6 +132,13 @@
                                         class="custom-control-input" value="false">
                                     <label for="show-grid-false" class="custom-control-label">no</label>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label" for="settings-canvas-size">Canvas size</label>
+                            <div class="col-8">
+                                <input id="settings-canvas-size" name="settings-canvas-size" placeholder="1000x1000"
+                                    type="text" class="form-control" pattern="^([1-9][0-9]*)x([1-9][0-9]*)$">
                             </div>
                         </div>
                     </form>
