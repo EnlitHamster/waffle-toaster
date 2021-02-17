@@ -1,3 +1,7 @@
+var componentResizeListener = function(e) {
+    e.stopPropagation();
+}
+
 var componentDragListener = function(e) {
     e.stopPropagation();
     e.preventDefault();
@@ -24,9 +28,10 @@ var setMode = function(id) {
     if ($('#move-resize').attr('data-mode') == 'move') {
         $(id).css({resize: 'none'});
         $(id).on('mousedown', componentDragListener);
+        $(id).off('mousedown', componentResizeListener);
     } else {
-        if (id.startsWith('#txt')) $(id).css({resize: 'both'});
-        else if (id.startsWith('#img')) $(id).css({resize: 'both'});
+        if (id.startsWith('#card')) $(id).css({resize: 'both'});
+        $(id).on('mousedown', componentResizeListener);
         $(id).off('mousedown', componentDragListener);
     }
 }

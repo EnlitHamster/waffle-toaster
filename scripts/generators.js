@@ -37,7 +37,7 @@ var genComb = function () {
 
     // Setting card style, id & components
     $(card).addClass('card scrollbar');
-    $(card).attr('id', 'img-' + nextId());
+    $(card).attr('id', 'card-' + nextId());
     $(card).append(cardImg)
         .append(cardBody);
     //    .append(resizers);
