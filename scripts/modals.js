@@ -74,31 +74,16 @@ var updateChooser = function () {
  * =============================================== */
 
 var saveSettings = function () {
-    var showGrid = $('input[name=show-grid]:checked').val();
-    var canvasSize = $('input[name=settings-canvas-size]').val().split('x');
+    parseSettings(
+        $('input[name=show-grid]:checked').val(),
+        $('input[name=settings-canvas-size]').val()
+    );
+    applySettings();
+}
 
-    // Grid options
-    if (showGrid == 'true') $('#canvas').addClass('grid-bg'); else $('#canvas').removeClass('grid-bg');
-
-    // Dimensions
-    if (canvasSize.length == 2) 
-        $('#canvas').css({
-            'width': canvasSize[0] + 'px',
-            'min-width': canvasSize[0] + 'px',
-            'max-width': canvasSize[0] + 'px',
-            'height': canvasSize[1] + 'px',
-            'min-height': canvasSize[1] + 'px',
-            'max-height': canvasSize[1] + 'px',
-        });
-    else
-        $('#canvas').css({
-            'width': 1200 + 'px',
-            'min-width': 1200 + 'px',
-            'max-width': 1200 + 'px',
-            'height': 1200 + 'px',
-            'min-height': 1200 + 'px',
-            'max-height': 1200 + 'px',
-        });
+var loadSettings = function() {
+    $('#show-grid-' + showGrid).prop('checked', true);
+    $('#settings-canvas-size').val(canvasWidth + 'x' + canvasHeight);
 }
 
 /* ===============================================

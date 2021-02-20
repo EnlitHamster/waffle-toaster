@@ -36,6 +36,7 @@
     <script src="./scripts/canvas.js"></script>
     <script src="./scripts/generators.js"></script>
     <script src="./scripts/rearrange.js"></script>
+    <script src="./scripts/settings.js"></script>
     <script src="./scripts/modals.js"></script>
     <script src="./scripts/startup.js"></script>
 </head>
@@ -48,7 +49,7 @@
         <div id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" data-toggle="modal" data-target="#settings-modal">Settings</a>
+                    <a class="nav-link" id="open-settings" href="#" data-toggle="modal" data-target="#settings-modal">Settings</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="move-resize" href="#" data-mode="resize">Rearrange</a>
@@ -124,7 +125,7 @@
                             <div class="col-8">
                                 <div class="custom-control custom-radio custom-control-inline">
                                     <input name="show-grid" id="show-grid-true" type="radio"
-                                        class="custom-control-input" value="true" checked>
+                                        class="custom-control-input" value="true">
                                     <label for="show-grid-true" class="custom-control-label">yes</label>
                                 </div>
                                 <div class="custom-control custom-radio custom-control-inline">

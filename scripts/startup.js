@@ -36,9 +36,10 @@ $(function () {
     $('#canvas').on('mousedown', canvasDragListener);
 
     // Fixing canvas viewport
-    $(window).on('resize', resizeCanvasViewport)
+    $(window).on('resize', resizeCanvasViewport);
 
-    saveSettings();
+    applySettings();
+    loadSettings();
     resizeMode();
     positionCanvas();
 
