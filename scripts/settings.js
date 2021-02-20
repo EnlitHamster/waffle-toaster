@@ -2,6 +2,7 @@
 var showGrid = false;
 var canvasWidth = 1000;
 var canvasHeight = 1000;
+var gridSize = 1.2;
 
 var applySettings = function () {
     // Grid options
@@ -9,7 +10,10 @@ var applySettings = function () {
     // CSS the inline css has to be removed prior and added after the 
     // manipulation of the grid-bg class to avoid conflict
     if (showGrid) {
-        $('#canvas').css('background', '');
+        $('#canvas').css({
+            'background': '', 
+            'background-size': gridSize + 'em ' + gridSize + 'em'
+        });
         $('#canvas').addClass('grid-bg');
     } else {
         $('#canvas').removeClass('grid-bg');
@@ -27,9 +31,10 @@ var applySettings = function () {
     });
 }
 
-var parseSettings = function (_showGrid, _canvasSize) {
+var parseSettings = function (_showGrid, _canvasSize, _gridSize) {
     parseShowGrid(_showGrid);
     parseCanvasSize(_canvasSize);
+    parseGridSize(_gridSize);
 } 
 
 var parseShowGrid = function (_showGrid) {
@@ -42,4 +47,16 @@ var parseCanvasSize = function (_canvasSize) {
         canvasWidth = parseInt(sizes[0]);
         canvasHeight = parseInt(sizes[1]);
     }
+}
+
+var parseGridSize = function(_gridSize) {
+    if (_gridSize && /^([0-9]+)(.([0-9]*))?$/.test(_gridSize)) gridSize = cm2em(parseFloat(_gridSize));
+}
+
+var cm2em = function (_cm) {
+    return _cm * 2.3710630158366;
+}
+
+var em2cm = function (_em) {
+    return _em / 2.3710630158366;
 }

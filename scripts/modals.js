@@ -76,7 +76,8 @@ var updateChooser = function () {
 var saveSettings = function () {
     parseSettings(
         $('input[name=show-grid]:checked').val(),
-        $('input[name=settings-canvas-size]').val()
+        $('input[name=settings-canvas-size]').val(),
+        $('input[name=settings-grid-size]').val()
     );
     applySettings();
 }
@@ -84,6 +85,7 @@ var saveSettings = function () {
 var loadSettings = function() {
     $('#show-grid-' + showGrid).prop('checked', true);
     $('#settings-canvas-size').val(canvasWidth + 'x' + canvasHeight);
+    $('#settings-grid-size').val(em2cm(gridSize));
 }
 
 /* ===============================================
