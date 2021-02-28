@@ -1,3 +1,29 @@
+<?php
+// File uploading from https://www.w3schools.com/php/php_file_upload.asp
+$target_dir = "../repos/pictures/";
+$target_file = $target_dir . basename($_FILES["upload-new-file-chooser"]["name"]);
+$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+// Check if image file is a actual image or fake image
+if (isset($_POST["upload-new-file"])) {
+  $check = getimagesize($_FILE["upload-new-file-chooser"]["tmp_name"]);
+  if ($check !== false) {
+    echo "File is an image - " . $check["mime"] . ".";
+
+    // Check if file already exists
+    if (file_exists($target_file) !== false) {
+      // Check file size
+      if ($_FILES["upload-new-file-chooser"]["size"] <= 500000) {
+        // if everything is ok, try to upload file
+        if (move_uploaded_file($_FILES["upload-new-file-chooser"]["tmp_name"], $target_file))
+          echo "The file " . htmlspecialchars(basename($_FILES["upload-new-file-chooser"]["name"])) . " has been uploaded.";
+        else echo "Sorry, there was an error uploading yout file.";
+      } else echo "Sorry, your file is too large.";
+    } else  echo "Sorry, file already exists.";
+  } else echo "File is not an image.";
+}
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,13 +40,10 @@
     <!--<link rel="stylesheet" href="./style/resizer.css" />-->
 
     <!-- required scripts -->
-    <script>
-        let $ = require('jquery');
-        require('popper.js');
-        require('bootstrap');
-        require('lightgallery');
-        const fs = require('fs');
-    </script>
+    <script src="./scripts/lib/jquery-3.5.1.min.js"></script>
+    <script src="./scripts/lib/popper.min.js"></script>
+    <script src="./scripts/lib/bootstrap.bundle.min.js"></script>
+    <script src="./scripts/lib/lightgallery.js"></script>
     <!--<script src="./scripts/resizer.js"></script>-->
     <script src="./scripts/math.js"></script>
     <script src="./scripts/dragndrop.js"></script>
@@ -238,7 +261,7 @@
                     </button>
                 </div>
                 <div class="modal-body scrollbar">
-                    <form id="uploaded-files-form" class="form-horizontal">
+                    <form id="uploaded-files-form" class="form-horizontal" action="" method="post" enctype="multipart/form-data">
                         <div class="form-group row container" style="margin:auto!important;">
                             <div id="uploaded-files-gallery-container"></div>
                         </div>
@@ -254,7 +277,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit-comb-modal"
                         data-dismiss="modal">Back</button>
-                    <button type="button" id="upload-new-file" class="btn btn-primary">Upload</button>
+                    <button type="submite" name="upload-new-file" id="upload-new-file" class="btn btn-primary" form="uploaded-files-form">Upload</button>
                     <button type="button" id="select-uploaded-file" class="btn btn-primary" data-toggle="modal"
                         data-target="#edit-comb-modal" data-dismiss="modal">Select</button>
                 </div>
