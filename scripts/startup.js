@@ -32,11 +32,13 @@ $(function () {
     // Updating file chooser with file name
     $('input[name=upload-new-file-chooser]').on('change', e => updateChooser());
 
-    // Setting canvas' movement controller 
+    // Setting canvas' movement controller
     $('#canvas').on('mousedown', canvasDragListener);
 
     // Fixing canvas viewport
     $(window).on('resize', resizeCanvasViewport);
+
+    $('#save-new-main-board').on('click', requestNewMainBoard);
 
     applySettings();
     loadSettings();
