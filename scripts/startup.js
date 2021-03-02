@@ -38,6 +38,8 @@ $(function () {
     // Fixing canvas viewport
     $(window).on('resize', resizeCanvasViewport);
 
+    $('#save-new-main-board').on('click', requestNewMainBoard);
+
     applySettings();
     loadSettings();
     resizeMode();

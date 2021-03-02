@@ -1,0 +1,8 @@
+{
+    "name": "Test",
+    "size": "1000x1000",
+    "bg": {
+        "type": "true",
+        "cellsize": "1000x1000"
+    }
+}

@@ -1,6 +1,6 @@
 <?php
 // File uploading from https://www.w3schools.com/php/php_file_upload.asp
-$target_dir = "../repos/pictures/";
+$target_dir = "../db/pictures/";
 $target_file = $target_dir . basename($_FILES["upload-new-file-chooser"]["name"]);
 $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -52,6 +52,7 @@ if (isset($_POST["upload-new-file"])) {
     <script src="./scripts/rearrange.js"></script>
     <script src="./scripts/settings.js"></script>
     <script src="./scripts/modals.js"></script>
+    <script src="./scripts/server.js"></script>
     <script src="./scripts/startup.js"></script>
 </head>
 
@@ -62,6 +63,9 @@ if (isset($_POST["upload-new-file"])) {
     <nav id="navbar" class="navbar navbar-expand navbar-light bg-light">
         <div id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" id="new-main-board" href="#" data-toggle="modal" data-target="#new-main-board-modal">New Main Board</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" id="open-settings" href="#" data-toggle="modal" data-target="#settings-modal">Settings</a>
                 </li>
@@ -119,6 +123,64 @@ if (isset($_POST["upload-new-file"])) {
 
         <!-- END CANVAS -->
 
+    </div>
+
+    <!-- New Main Board Modal -->
+    <div class="modal fade" id="new-main-board-modal" tabindex="-1" role="dialog" aria-labelledby="new-main-board-modal-title"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centerd modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="new-main-board-modal-title">New Main Board</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body scrollbar">
+                    <form id="new-main-board-form" class="form-horizontal">
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label" for="new-main-board-name">Name</label>
+                            <div class="col-8">
+                                <input id="new-main-board-name" name="new-main-board-name" placeholder="Name" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4">Show Grid</label>
+                            <div class="col-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input name="new-main-board-show-grid" id="new-main-board-show-grid-true" type="radio"
+                                        class="custom-control-input" value="true" checked>
+                                    <label for="new-main-board-show-grid-true" class="custom-control-label">yes</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input name="new-main-board-show-grid" id="new-main-board-show-grid-false" type="radio"
+                                        class="custom-control-input" value="false">
+                                    <label for="new-main-board-show-grid-false" class="custom-control-label">no</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label" for="new-main-board-canvas-size">Canvas size</label>
+                            <div class="col-8">
+                                <input id="new-main-board-canvas-size" name="new-main-board-canvas-size" placeholder="1000x1000"
+                                    type="text" class="form-control" pattern="^([1-9][0-9]*)x([1-9][0-9]*)$" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label" for="new-main-board-grid-size">Grid cell size</label>
+                            <div class="col-8">
+                                <input id="new-main-board-grid-size" name="new-main-board-grid-size" placeholder="0.5"
+                                    type="number" min="0" max="10" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="save-new-main-board" class="btn btn-primary" data-dismiss="modal">Create</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Settings Modal -->
