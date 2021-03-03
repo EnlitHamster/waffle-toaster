@@ -17,19 +17,19 @@ var startDrag = function($dragging, $anchor, hPos, vPos, minmax) {
 
     $dragging.addClass('dragging');
 
-    $anchor.on('mousemove', function(e) {
+    $anchor.on('mousemove touchmove', function(e) {
         e.preventDefault();
         drag({x: e.clientX, y: e.clientY}, $dragging, $anchor, hPos, vPos, minmax);
     });
 
-    $anchor.on('mouseup', function() {
+    $anchor.on('mouseup touchend', function() {
         stopDrag($dragging, $anchor);
     });
 }
 
 var stopDrag = function($dragging, $anchor) {
     $dragging.removeClass('dragging');
-    $anchor.off('mousemove mouseup');
+    $anchor.off('mousemove touchmove mouseup touchend');
 }
 
 var drag = function(pos, $dragging, $anchor, hPos, vPos, minmax) {

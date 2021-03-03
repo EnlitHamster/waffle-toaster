@@ -15,7 +15,7 @@ $(function () {
     $('#move-resize').on('click', switchMode);
 
     // Combined generator
-    $('#combined-generator').on('mousedown', addComb);
+    $('#combined-generator').on('mousedown touchstart', addComb);
 
     // On file upload
     $('#upload-new-file').on('click', uploadFile);
@@ -33,7 +33,7 @@ $(function () {
     $('input[name=upload-new-file-chooser]').on('change', e => updateChooser());
 
     // Setting canvas' movement controller 
-    $('#canvas').on('mousedown', canvasDragListener);
+    $('#canvas').on('mousedown touchstart', canvasDragListener);
 
     // Fixing canvas viewport
     $(window).on('resize', resizeCanvasViewport);

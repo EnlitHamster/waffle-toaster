@@ -27,12 +27,12 @@ var resizeMode = function() {
 var setMode = function(id) {
     if ($('#move-resize').attr('data-mode') == 'move') {
         $(id).css({resize: 'none'});
-        $(id).on('mousedown', componentDragListener);
-        $(id).off('mousedown', componentResizeListener);
+        $(id).on('mousedown touchstart', componentDragListener);
+        $(id).off('mousedown touchstart', componentResizeListener);
     } else {
         if (id.startsWith('#card')) $(id).css({resize: 'both'});
-        $(id).on('mousedown', componentResizeListener);
-        $(id).off('mousedown', componentDragListener);
+        $(id).on('mousedown touchend', componentResizeListener);
+        $(id).off('mousedown touchend', componentDragListener);
     }
 }
 
