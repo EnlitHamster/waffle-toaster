@@ -10,8 +10,6 @@ var canvasDragListener = function(e) {
 
 var addComponent = function (comp, posX, posY) {
     var id = $(comp).attr('id');
-    components.push(id);
-    $('#canvas').append($(comp));
 
     $(comp).css({
         position: 'absolute',
@@ -19,8 +17,14 @@ var addComponent = function (comp, posX, posY) {
     });
     setMode('#' + id);
 
+    // Creating the card on server already
     drag({ x: posX, y: posY }, $(comp), $('#canvas'), HorizPosition.CENTER, VertPosition.CENTER, (p, a, q) => min(q, max(a, p)));
-    startDrag($(comp), $('#canvas'), HorizPosition.CENTER, VertPosition.CENTER, (p, a, q) => min(q, max(a, p)));
+    if (requestNewCard(id)) {
+        $('#canvas').append($(comp));
+        components.push(id);
+        startDrag($(comp), $('#canvas'), HorizPosition.CENTER, VertPosition.CENTER, (p, a, q) => min(q, max(a, p)));
+    }
+    //  else $('#canvas').remove($(comp));
 }
 
 var saveEditComb = function () {

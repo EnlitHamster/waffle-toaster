@@ -1,11 +1,11 @@
 <?php
 // File uploading from https://www.w3schools.com/php/php_file_upload.asp
-$target_dir = "../db/pictures/";
-$target_file = $target_dir . basename($_FILES["upload-new-file-chooser"]["name"]);
-$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
 // Check if image file is a actual image or fake image
 if (isset($_POST["upload-new-file"])) {
+  $target_dir = "../db/pictures/";
+  $target_file = $target_dir . basename($_FILES["upload-new-file-chooser"]["name"]);
+  $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
   $check = getimagesize($_FILE["upload-new-file-chooser"]["tmp_name"]);
   if ($check !== false) {
     echo "File is an image - " . $check["mime"] . ".";

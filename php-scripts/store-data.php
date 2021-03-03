@@ -5,8 +5,8 @@
 if (!empty($_REQUEST["root"]) && !empty($_REQUEST["action"])) {
     // Possible actions for the data storing:
     // [1] Creating a new board
-    // [2] Updating a board with new information
-    // [3] Adding new components to a board
+    // [2] Adding new components to a board
+    // [3] Updating a board with new information
     $root = $_REQUEST["root"];
     $action = $_REQUEST["action"];
 
@@ -15,13 +15,51 @@ if (!empty($_REQUEST["root"]) && !empty($_REQUEST["action"])) {
         // The structure of the information is as follows:
         // root is the representation of the new main board being created, which means
         // it has the name, size of the board, background information
-        if (!empty($root["name"]) && !empty($root["size"]) && !empty($root["bg"]) && !empty($root["bg"]["type"])) {
+        if (!empty($root["name"]) && !empty($root["size"]) && !empty($root["bg"]) && !empty($root["bg"]["type"])) create_board($root, "../db/" . $root["name"] . "/");
+        else error_log("Parameters are missing.");
+    } 
+    // 2
+    else if ($action == "add") {
+        // Here we are going to set different operations given the type of the 
+        // object being added:
+        // [1] Normal card (straight-forward)
+        // [2] Board
+        // [3] Diagram
+        
+        // First, control if type is set
+        if (!empty($root["type"]) && !empty($root["name"]) && !empty($root["object"])) {
+            // Standard data prep.
+            $type = $root["type"];
             $name = $root["name"];
-            mkdir("../db/$name/", 0777, true);
-            $json_file = fopen("../db/$name/main.json", "w"); // remove one ../ and put the php-script folder out of the www/htdocs folder
-            fwrite($json_file, json_encode($root, JSON_PRETTY_PRINT));
-            fclose($json_file);
-        } else error_log("Parameters are missing");
+            $object = $root["object"];
+            $object["type"] = $type;
+            $main_file = "../db/$name/main.json";
+            $board = json_decode(file_get_contents($main_file));
+
+            // 2
+            if ($type == "board" && !empty($root["opt"]["existing"])) {
+                $existing = $root["opt"]["existing"];
+                if ($existing == "false") create_board($object, "../db/$name/" . $object["name"] . "/");
+                $board["name"] = $name . "." . $board["name"]; 
+            }
+            // 3
+            else if ($type == "diagram") {
+                // To-Do: Implement diagram storing
+            } else error_log("Unrecognised object type.");
+
+            // Adding object to json file
+            array_push($board["contents"], $root["object"]);
+            $json_board = json_encode($board, JSON_PRETTY_PRINT);
+            file_put_contents($main_file, $json_board);
+        } else error_log("Parameters are missing.");
     } else error_log("Unrecognised action.");
 } else error_log("No root or action defined.");
+
+function create_board($root, $dir) {
+    $name = $root["name"];
+    mkdir($dir, 0777, true);
+    $json_file = fopen($dir . "main.json", "w");
+    fwrite($json_file, json_encode($root, JSON_PRETTY_PRINT));
+    fclose($json_file);
+}
 ?>
